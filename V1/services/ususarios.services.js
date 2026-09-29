@@ -1,18 +1,23 @@
 import jwt from 'jsonwebtoken';
+import usuarioModel from '../models/usuario.model.js';
 
 export const cambiarPlan = async (idUsuario) => {
 const usuario = await usuarioModel.findById(idUsuario);
 if (!usuario) {
-    throw new Error('Usuario no encontrado');
+    const error = new Error('Usuario no encontrado');
     error.status = 404;
+    throw error;
 }
 if(usuario.rol === 'admin') {
-    throw new Error('el administrador no gestiona planes');
+    const error = new Error('el administrador no gestiona planes');
     error.status = 403;
+    throw error;
+        
 }
 if(usuario.plan === 'premium') {
-    throw new Error('el usuario ya es premium');
+    const error = new Error('el usuario ya es premium');
     error.status = 409;
+    throw error;
 }
 usuario.plan = 'premium';
 await usuario.save();
