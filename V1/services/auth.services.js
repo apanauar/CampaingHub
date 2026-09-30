@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import usuarioModel from '../models/usuario.model.js';
 
 export const registerUser = async (userData) => {
-   const  existeUsuario = await usuarioModel.findOne({ email: userData.email });
+   const existeUsuario = await usuarioModel.findOne({ email: userData.email });
     if (existeUsuario) {
         const error = new Error('El usuario ya existe');
         error.status = 409;

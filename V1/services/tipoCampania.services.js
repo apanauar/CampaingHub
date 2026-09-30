@@ -1,45 +1,50 @@
-import {isValidObjectId} from 'mongoose';
-import TipoCampaniaModel from '../models/tipoCampania.model.js';
-import campaniaModel from '../models/campania.model.js';
+import { isValidObjectId } from "mongoose";
+import TipoCampaniaModel from "../models/tipoCampania.model.js";
+import campaniaModel from "../models/campania.model.js";
 
-const crearError = (message, status) => {
-    const error = new Error(message);
+const crearError = (mensaje, status) => {
+    const error = new Error(mensaje);
     error.status = status;
     return error;
-}
-
-export const listarTipos = async () => TipoCampaniaModel.find().sort({ nombre: 1 });
+};
+export const listarTipos = async () => {
+    const tipos = await TipoCampaniaModel.find();
+    return tipos;
+};
 
 export const obtenerTipo = async (id) => {
     if (!isValidObjectId(id)) {
-        throw crearError('ID de tipo de campaña inválido', 400);
+        throw crearError("El id del tipo de campaña no es válido", 400);
     }
     const tipo = await TipoCampaniaModel.findById(id);
     if (!tipo) {
-        throw crearError('Tipo de campaña no encontrado', 404);
+        throw crearError("Tipo de campaña no encontrado", 404);
     }
     return tipo;
-}
+};
 
 export const crearTipo = async (datos) => {
-    const tipoExistente = await TipoCampaniaModel.findOne({ nombre: datos.nombre });
-    if (tipoExistente) {
-        throw crearError('Ya existe un tipo de campaña con ese nombre', 409);
+    const existentes = await TipoCampaniaModel.find({ nombre: datos.nombre });
+    if (existentes.length > 0) {
+        throw crearError("Ya existe un tipo de campaña con ese nombre", 409);
     }
-    return TipoCampaniaModel.create(datos);
+    const nuevoTipo = new TipoCampaniaModel(datos);
+    await nuevoTipo.save();
+    return nuevoTipo;
 };
 
 export const actualizarTipo = async (id, datos) => {
     await obtenerTipo(id);
-    return TipoCampaniaModel.findByIdAndUpdate(id, datos, { returnDocument: 'after',  });
+    const tipoActualizado = await TipoCampaniaModel.findByIdAndUpdate(id, datos, { returnDocument: "after" });
+    return tipoActualizado;
 };
 
 export const eliminarTipo = async (id) => {
     await obtenerTipo(id);
-    const campaniasAsociadas = await campaniaModel.countDocuments({ tipoCampania: id });
+    const campaniasAsociadas = await campaniaModel.countDocuments({ tipo: id });
     if (campaniasAsociadas > 0) {
-        throw crearError('No se puede eliminar el tipo de campaña porque hay campañas asociadas', 400);
+        throw crearError(`No se puede eliminar: hay ${campaniasAsociadas} campaña(s) con este tipo`, 409);
     }
-    return TipoCampaniaModel.findByIdAndDelete(id);
+    const tipoEliminado = await TipoCampaniaModel.findByIdAndDelete(id);
+    return tipoEliminado;
 };
-    
