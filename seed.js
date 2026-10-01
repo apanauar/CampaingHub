@@ -11,7 +11,7 @@ if (!existe) {
     await usuarioModel.create({
         nombre: "Administrador",
         email: "admin@campaignhub.com",
-        password: await bcryptjs.hash("Admin12345", Number(process.env.SALT_ROUNDS)),
+        password: await bcryptjs.hash("Admin12345", Number(process.env.SALTING_ROUNDS)),
         rol: "admin",
         plan: "plus"
     });
