@@ -14,18 +14,6 @@ app.get("/", (req, res) => {
     res.json({ mensaje: "Campaign Hub API funcionando" });
 });
 
-// TEMPORAL (diagnóstico del deploy): muestra por qué no conecta la base. Se borra antes de entregar.
-app.get("/diag", async (req, res) => {
-    const uri = process.env.MONGO_URI || "";
-    const info = { tieneUri: uri.length > 0, host: uri.split("@")[1] || null, largo: uri.length };
-    try {
-        await connectDB();
-        res.json({ ...info, conectado: true });
-    } catch (error) {
-        res.status(503).json({ ...info, conectado: false, nombre: error.name, error: error.message });
-    }
-});
-
 // Antes de atender cualquier ruta de la API, se asegura la conexión a la base.
 // Si la base no responde: 503 (servicio no disponible) en vez de dejar el request colgado.
 app.use(async (req, res, next) => {
